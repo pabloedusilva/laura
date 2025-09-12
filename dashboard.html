@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard Admin - Laura's Burguer</title>
+    <link rel="stylesheet" href="dashboard.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
+</head>
+<body>
+    <!-- Header -->
+    <header class="header">
+        <div class="container">
+            <div class="header-content">
+                <div class="logo">
+                    <img src="../logo.svg" alt="Laura's Burguer" class="logo-image">
+                    <span class="admin-badge">Admin</span>
+                </div>
+                <div class="header-actions">
+                    <button class="logout-btn" id="logoutBtn">
+                        <i data-lucide="log-out"></i>
+                        <span>Sair</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="main-content">
+        <div class="container">
+            <!-- Dashboard Stats -->
+            <section class="dashboard-stats">
+                <div class="stat-card">
+                    <div class="stat-icon">
+                        <i data-lucide="package"></i>
+                    </div>
+                    <div class="stat-info">
+                        <h3 id="totalProdutos">0</h3>
+                        <p>Total de Produtos</p>
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon">
+                        <i data-lucide="shopping-cart"></i>
+                    </div>
+                    <div class="stat-info">
+                        <h3 id="totalPedidos">0</h3>
+                        <p>Total de Pedidos</p>
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon">
+                        <i data-lucide="clock"></i>
+                    </div>
+                    <div class="stat-info">
+                        <h3 id="pedidosPreparando">0</h3>
+                        <p>Preparando</p>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Navigation Tabs -->
+            <section class="dashboard-nav">
+                <button class="nav-tab active" data-tab="produtos">
+                    <i data-lucide="package"></i>
+                    <span>Gerenciar Produtos</span>
+                </button>
+                <button class="nav-tab" data-tab="pedidos">
+                    <i data-lucide="clipboard-list"></i>
+                    <span>Visualizar Pedidos</span>
+                </button>
+            </section>
+
+            <!-- Products Management Tab -->
+            <section id="produtos-tab" class="tab-content active">
+                <div class="section-header">
+                    <h2>Gerenciamento de Produtos</h2>
+                    <button class="btn-primary" id="addProductBtn">
+                        <i data-lucide="plus"></i>
+                        <span>Adicionar Produto</span>
+                    </button>
+                </div>
+
+                <div class="products-grid" id="productsGrid">
+                    <!-- Produtos serão inseridos aqui -->
+                </div>
+            </section>
+
+            <!-- Orders Management Tab -->
+            <section id="pedidos-tab" class="tab-content">
+                <div class="section-header">
+                    <h2>Gerenciamento de Pedidos</h2>
+                    <div class="filters">
+                        <select id="statusFilter" class="filter-select">
+                            <option value="">Todos os Status</option>
+                            <option value="preparando">Preparando</option>
+                            <option value="entregue">Entregue</option>
+                            <option value="cancelado">Cancelado</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="orders-list" id="ordersList">
+                    <!-- Pedidos serão inseridos aqui -->
+                </div>
+            </section>
+        </div>
+    </main>
+
+    <!-- Add Product Modal -->
+    <div class="modal-overlay" id="productModal">
+        <div class="modal">
+            <div class="modal-header">
+                <h3 id="modalTitle">Adicionar Produto</h3>
+                <button class="modal-close" id="closeModal">
+                    <i data-lucide="x"></i>
+                </button>
+            </div>
+            <div class="modal-body">
+                <form id="productForm">
+                    <div class="form-group">
+                        <label>Tipo de Produto</label>
+                        <select id="productType" class="form-input" required>
+                            <option value="">Selecione o tipo</option>
+                            <option value="normal">Produto Normal</option>
+                            <option value="refrigerante">Refrigerante</option>
+                            <option value="combo">Combo</option>
+                        </select>
+                    </div>
+
+                    <!-- Campos para Produto Normal -->
+                    <div id="normalFields" class="product-fields">
+                        <div class="form-group">
+                            <label>Nome do Produto</label>
+                            <input type="text" id="productName" class="form-input" placeholder="Ex: Hambúrguer Especial">
+                        </div>
+                        <div class="form-group">
+                            <label>Descrição</label>
+                            <textarea id="productDescription" class="form-input" rows="3" placeholder="Descrição detalhada do produto"></textarea>
+                        </div>
+                        <div class="form-group">
+                            <label>Preço (R$)</label>
+                            <input type="number" id="productPrice" class="form-input" step="0.01" placeholder="0.00">
+                        </div>
+                        <div class="form-group">
+                            <label>URL da Imagem</label>
+                            <input type="url" id="productImage" class="form-input" placeholder="https://...">
+                        </div>
+                        <div class="form-group">
+                            <label>Categoria</label>
+                            <select id="productCategory" class="form-input">
+                                <option value="Principais">Principais</option>
+                                <option value="Acompanhamentos">Acompanhamentos</option>
+                                <option value="Bebidas">Bebidas</option>
+                                <option value="Sobremesas">Sobremesas</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <!-- Campos para Refrigerante -->
+                    <div id="refrigeranteFields" class="product-fields" style="display: none;">
+                        <div class="form-group">
+                            <label>Nome do Refrigerante</label>
+                            <input type="text" id="refriName" class="form-input" placeholder="Ex: Coca-Cola">
+                        </div>
+                        <div class="form-group">
+                            <label>Preço (R$)</label>
+                            <input type="number" id="refriPrice" class="form-input" step="0.01" placeholder="0.00">
+                        </div>
+                        <div class="form-group">
+                            <label>URL da Imagem</label>
+                            <input type="url" id="refriImage" class="form-input" placeholder="https://...">
+                        </div>
+                    </div>
+
+                    <!-- Campos para Combo -->
+                    <div id="comboFields" class="product-fields" style="display: none;">
+                        <div class="form-group">
+                            <label>Nome do Combo</label>
+                            <input type="text" id="comboName" class="form-input" placeholder="Ex: Combo Especial">
+                        </div>
+                        <div class="form-group">
+                            <label>Descrição</label>
+                            <textarea id="comboDescription" class="form-input" rows="3" placeholder="O que inclui no combo"></textarea>
+                        </div>
+                        <div class="form-group">
+                            <label>Preço (R$)</label>
+                            <input type="number" id="comboPrice" class="form-input" step="0.01" placeholder="0.00">
+                        </div>
+                        <div class="form-group">
+                            <label>URL da Imagem</label>
+                            <input type="url" id="comboImage" class="form-input" placeholder="https://...">
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn-secondary" id="cancelBtn">Cancelar</button>
+                <button type="submit" form="productForm" class="btn-primary" id="saveBtn">Salvar Produto</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="dashboard.js"></script>
+    <script>
+        // Inicializar ícones Lucide
+        lucide.createIcons();
+    </script>
+</body>
+</html>
