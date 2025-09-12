@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Laura's Burguer - Lanchonete Premium</title>
+    <link rel="stylesheet" href="index.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
+</head>
+<body>
+    <!-- Header -->
+    <header class="header">
+        <div class="container">
+            <div class="header-content">
+                <div class="logo">
+                    <img src="https://img.freepik.com/vetores-gratis/hamburguer-delicioso-com-icone-de-texto_1308-134888.jpg" alt="Laura's Burguer" class="logo-image">
+                </div>
+                <div class="header-actions">
+                    <button class="orders-toggle" id="ordersToggle" title="Meus Pedidos">
+                        <i data-lucide="clipboard-list" class="orders-icon"></i>
+                        <span class="orders-text">Pedidos</span>
+                    </button>
+                    <div class="cart-toggle" id="cartToggle">
+                        <i data-lucide="shopping-cart" class="cart-icon"></i>
+                        <span class="cart-count" id="cartCount">0</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Hero Section -->
+    <section class="hero">
+        <div class="hero-image-container">
+            <img class="hero-image" src="https://img.freepik.com/fotos-premium/saboroso-hamburguer-na-mesa-de-madeira-isolada-no-fundo-preto-gerar-por-ia_751264-372.jpg" alt="Delicioso hambúrguer artesanal">
+            <div class="hero-overlay"></div>
+        </div>
+        <div class="container">
+            <div class="hero-content">
+                <div class="hero-badge">
+                    <i data-lucide="star" class="badge-icon"></i>
+                    <span>Premium Quality</span>
+                </div>
+                <h2 class="hero-title">Sabores que <span class="highlight">conquistam</span></h2>
+                <p class="hero-description">Experiência gastronômica única com ingredientes selecionados e preparo artesanal</p>
+                <div class="hero-buttons">
+                    <button class="cta-button primary" onclick="scrollToMenu()">
+                        <i data-lucide="chef-hat"></i>
+                        <span>Ver Cardápio</span>
+                    </button>
+                    <button class="cta-button secondary" onclick="abrirModalHistoria()">
+                        <i data-lucide="play-circle"></i>
+                        <span>Nossa História</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Menu Section -->
+    <section class="menu" id="menu">
+        <div class="container">
+            <h2 class="section-title">Nosso Cardápio</h2>
+            <div class="menu-grid" id="menuGrid">
+                <!-- Os produtos serão inseridos aqui via JavaScript -->
+            </div>
+        </div>
+    </section>
+
+    <!-- Cart Sidebar -->
+    <div class="cart-sidebar" id="cartSidebar">
+        <div class="cart-header">
+            <div class="cart-title">
+                <i data-lucide="shopping-bag"></i>
+                <h3>Seu Pedido</h3>
+            </div>
+            <button class="cart-close" id="cartClose">
+                <i data-lucide="x"></i>
+            </button>
+        </div>
+        <div class="cart-items" id="cartItems">
+            <!-- Itens do carrinho serão inseridos aqui -->
+        </div>
+        <div class="cart-footer">
+            <div class="cart-total">
+                <div class="total-label">Total do Pedido</div>
+                <div class="total-value">R$ <span id="cartTotal">0,00</span></div>
+            </div>
+            <button class="checkout-btn" id="checkoutBtn">
+                <i data-lucide="credit-card"></i>
+                <span>Finalizar Pedido</span>
+            </button>
+            <button class="clear-cart-btn" id="clearCartBtn">
+                <i data-lucide="trash-2"></i>
+                <span>Limpar Carrinho</span>
+            </button>
+        </div>
+    </div>
+
+    <!-- Cart Overlay -->
+    <div class="cart-overlay" id="cartOverlay"></div>
+
+    <!-- Orders Sidebar -->
+    <div class="orders-sidebar" id="ordersSidebar">
+        <div class="orders-header">
+            <div class="orders-title">
+                <i data-lucide="clipboard-list"></i>
+                <h3>Meus Pedidos</h3>
+            </div>
+            <button class="orders-close" id="ordersClose">
+                <i data-lucide="x"></i>
+            </button>
+        </div>
+        <div class="orders-content" id="ordersContent">
+            <!-- Pedidos serão inseridos aqui -->
+        </div>
+    </div>
+
+    <!-- Orders Overlay -->
+    <div class="orders-overlay" id="ordersOverlay"></div>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <p>&copy; 2025 Laura's Burguer. Todos os direitos reservados.</p>
+        </div>
+    </footer>
+
+    <!-- Success Modal -->
+    <div class="modal" id="successModal">
+        <div class="modal-content">
+            <div class="modal-icon">
+                <i data-lucide="check-circle"></i>
+            </div>
+            <h3>Pedido Realizado com Sucesso!</h3>
+            <p>Seu pedido foi enviado e será preparado com todo carinho. Você receberá uma confirmação em breve!</p>
+            <button class="modal-btn" onclick="closeModal()">
+                <i data-lucide="check"></i>
+                <span>Entendi</span>
+            </button>
+        </div>
+    </div>
+
+    <!-- Modal História -->
+    <div id="modalHistoria" class="modal-overlay">
+        <div class="modal-video">
+            <button class="modal-close" onclick="fecharModalHistoria()">
+                <i data-lucide="x"></i>
+            </button>
+            <video id="videoHistoria" controls autoplay>
+                <source src="https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4" type="video/mp4">
+                Seu navegador não suporta o elemento de vídeo.
+            </video>
+        </div>
+    </div>
+
+    <script src="index.js"></script>
+    <script>
+        // Inicializar ícones Lucide
+        lucide.createIcons();
+    </script>
+</body>
+</html>
