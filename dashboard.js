@@ -16,6 +16,7 @@
 let produtos = [];
 let pedidos = [];
 let editingProductId = null;
+let refriEditSnapshot = null; // snapshot para modal de refrigerantes
 
 // ===========================================
 // ELEMENTOS DOM
@@ -32,6 +33,16 @@ const cancelBtn = document.getElementById('cancelBtn');
 const statusFilter = document.getElementById('statusFilter');
 const navTabs = document.querySelectorAll('.nav-tab');
 const tabContents = document.querySelectorAll('.tab-content');
+// Elementos do modal de refrigerantes
+const refrigerantesModal = document.getElementById('refrigerantesModal');
+const closeRefrigerantesModal = document.getElementById('closeRefrigerantesModal');
+const cancelRefrigerantesBtn = document.getElementById('cancelRefrigerantesBtn');
+const saveRefrigerantesBtn = document.getElementById('saveRefrigerantesBtn');
+const refrigerantesList = document.getElementById('refrigerantesList');
+const refriAddName = document.getElementById('refriAddName');
+const refriAddPrice = document.getElementById('refriAddPrice');
+const refriAddImage = document.getElementById('refriAddImage');
+const refriAddBtn = document.getElementById('refriAddBtn');
 
 // Estatísticas
 const totalProdutos = document.getElementById('totalProdutos');
@@ -52,6 +63,7 @@ function inicializarDashboard() {
     atualizarEstatisticas();
     renderizarProdutos();
     renderizarPedidos();
+    bindUploadPreviews();
     
     console.log('🔧 Dashboard Admin iniciado com sucesso!');
 }
@@ -266,25 +278,24 @@ function abrirModalAdicionar() {
     handleProductTypeChange();
     productModal.classList.add('active');
     document.body.style.overflow = 'hidden';
+    bindUploadPreviews();
 }
 
 function editarProduto(id) {
     const produto = produtos.find(p => p.id === id);
     if (!produto) return;
 
-    editingProductId = id;
-    modalTitle.textContent = 'Editar Produto';
-
     if (produto.tipo === 'refrigerante-container') {
-        // Listar refrigerantes
-        alert('Funcionalidade de edição de refrigerantes será implementada em versão futura');
+        abrirModalRefrigerantes(produto);
         return;
     }
 
-    // Preencher formulário
+    editingProductId = id;
+    modalTitle.textContent = 'Editar Produto';
+
+    // preencher campos
     productType.value = produto.tipo || 'normal';
     handleProductTypeChange();
-
     if (produto.tipo === 'combo') {
         document.getElementById('comboName').value = produto.nome;
         document.getElementById('comboDescription').value = produto.descricao;
@@ -300,6 +311,7 @@ function editarProduto(id) {
 
     productModal.classList.add('active');
     document.body.style.overflow = 'hidden';
+    bindUploadPreviews();
 }
 
 function removerProduto(id) {
@@ -573,13 +585,232 @@ function configurarLogout() {
 }
 
 // ===========================================
-// INICIALIZAÇÃO FINAL
+// UPLOADS E IMAGENS
 // ===========================================
-document.addEventListener('DOMContentLoaded', function() {
-    inicializarDashboard();
-    configurarLogout(); // Adicionar configuração do logout
+// Bind image file inputs to previews and URL fields
+function bindUploadPreviews() {
+  const pairs = [
+    { file: 'productImageFile', url: 'productImage', img: 'productImagePreview' },
+    { file: 'refriImageFile', url: 'refriImage', img: 'refriImagePreview' },
+    { file: 'comboImageFile', url: 'comboImage', img: 'comboImagePreview' }
+  ];
+
+  pairs.forEach(({ file, url, img }) => {
+    const fileEl = document.getElementById(file);
+    const urlEl = document.getElementById(url);
+    const imgEl = document.getElementById(img);
+    if (!fileEl || !urlEl || !imgEl) return;
+
+    const updatePreviewFromUrl = () => {
+      const v = (urlEl.value || '').trim();
+      imgEl.src = v || '';
+      imgEl.style.display = v ? 'block' : 'none';
+    };
+
+    urlEl.addEventListener('input', updatePreviewFromUrl);
+    updatePreviewFromUrl();
+
+    fileEl.addEventListener('change', (e) => {
+      const file = e.target.files && e.target.files[0];
+      if (!file) return;
+      const reader = new FileReader();
+      reader.onload = (ev) => {
+        const dataUrl = ev.target.result;
+        urlEl.value = dataUrl; // embed as data URL to persist in localStorage
+        imgEl.src = dataUrl;
+        imgEl.style.display = 'block';
+      };
+      reader.readAsDataURL(file);
+    });
+  });
+
+  // Add-new refri bind
+  const addFile = document.getElementById('refriAddImageFile');
+  const addUrl = document.getElementById('refriAddImage');
+  const addImg = document.getElementById('refriAddImagePreview');
+  if (addFile && addUrl && addImg) {
+    const updateAddPreview = () => {
+      const v = (addUrl.value || '').trim();
+      addImg.src = v || '';
+      addImg.style.display = v ? 'block' : 'none';
+    };
+    addUrl.addEventListener('input', updateAddPreview);
+    updateAddPreview();
+
+    addFile.addEventListener('change', (e) => {
+      const f = e.target.files && e.target.files[0];
+      if (!f) return;
+      const reader = new FileReader();
+      reader.onload = (ev) => {
+        const dataUrl = ev.target.result;
+        addUrl.value = dataUrl;
+        addImg.src = dataUrl;
+        addImg.style.display = 'block';
+      };
+      reader.readAsDataURL(f);
+    });
+  }
+}
+
+// When rendering refrigerantes editor rows, also attach per-row uploads
+function renderizarRefrigerantesEditor(container) {
+  if (!container.opcoes) container.opcoes = [];
+  if (container.opcoes.length === 0) {
+    refrigerantesList.innerHTML = `
+      <div class="empty-state">
+        <i data-lucide="cup-soda"></i>
+        <h3>Nenhum refrigerante cadastrado</h3>
+        <p>Adicione suas bebidas favoritas abaixo</p>
+      </div>`;
+    lucide.createIcons();
+    return;
+  }
+
+  let html = '';
+  container.opcoes.forEach((refri, idx) => {
+    const fileId = `refri-row-file-${idx}`;
+    const urlId = `refri-row-url-${idx}`;
+    const imgId = `refri-row-img-${idx}`;
+    html += `
+      <div class="refri-row">
+        <div class="refri-img">
+          <div class="image-preview small">
+            <img id="${imgId}" src="${refri.imagem}" alt="${refri.nome}">
+          </div>
+        </div>
+        <input class="form-input refri-name" data-index="${idx}" value="${refri.nome}" placeholder="Nome">
+        <input class="form-input refri-price" data-index="${idx}" type="number" step="0.01" value="${Number(refri.preco || 0).toFixed(2)}" placeholder="Preço">
+        <div>
+          <input id="${urlId}" class="form-input refri-image" data-index="${idx}" value="${refri.imagem}" placeholder="URL da imagem">
+          <input id="${fileId}" type="file" class="form-input" accept="image/*" style="margin-top:8px">
+        </div>
+        <div class="refri-actions">
+          <button class="btn-secondary" data-action="up" data-index="${idx}" title="Mover para cima">▲</button>
+          <button class="btn-secondary" data-action="down" data-index="${idx}" title="Mover para baixo">▼</button>
+          <button class="btn-danger" data-action="remove" data-index="${idx}">
+            <i data-lucide="trash-2"></i>
+            Remover
+          </button>
+        </div>
+      </div>`;
+  });
+  refrigerantesList.innerHTML = html;
+  lucide.createIcons();
+
+  // inline edits
+  refrigerantesList.querySelectorAll('.refri-name').forEach(inp => {
+    inp.addEventListener('input', (e) => {
+      const i = Number(e.target.dataset.index);
+      container.opcoes[i].nome = e.target.value;
+    });
+  });
+  refrigerantesList.querySelectorAll('.refri-price').forEach(inp => {
+    inp.addEventListener('input', (e) => {
+      const i = Number(e.target.dataset.index);
+      container.opcoes[i].preco = parseFloat(e.target.value || '0');
+    });
+  });
+  refrigerantesList.querySelectorAll('.refri-image').forEach(inp => {
+    inp.addEventListener('input', (e) => {
+      const i = Number(e.target.dataset.index);
+      container.opcoes[i].imagem = e.target.value;
+      const img = document.getElementById(`refri-row-img-${i}`);
+      img.src = e.target.value;
+    });
+  });
+
+  // file uploads per row
+  container.opcoes.forEach((_, i) => {
+    const fileEl = document.getElementById(`refri-row-file-${i}`);
+    const urlEl = document.getElementById(`refri-row-url-${i}`);
+    const imgEl = document.getElementById(`refri-row-img-${i}`);
+    if (!fileEl || !urlEl || !imgEl) return;
+    fileEl.addEventListener('change', (e) => {
+      const f = e.target.files && e.target.files[0];
+      if (!f) return;
+      const reader = new FileReader();
+      reader.onload = (ev) => {
+        const dataUrl = ev.target.result;
+        urlEl.value = dataUrl;
+        imgEl.src = dataUrl;
+        container.opcoes[i].imagem = dataUrl;
+      };
+      reader.readAsDataURL(f);
+    });
+  });
+
+  // actions
+  refrigerantesList.querySelectorAll('.btn-danger').forEach(btn => {
+    btn.addEventListener('click', (e) => {
+      const i = Number(e.currentTarget.dataset.index);
+      container.opcoes.splice(i, 1);
+      if (container.opcaoSelecionada && !container.opcoes.find(o => o.id === container.opcaoSelecionada)) {
+        container.opcaoSelecionada = container.opcoes[0]?.id || null;
+      }
+      renderizarRefrigerantesEditor(container);
+    });
+  });
+  refrigerantesList.querySelectorAll('[data-action="up"]').forEach(btn => {
+    btn.addEventListener('click', (e) => {
+      const i = Number(e.currentTarget.dataset.index);
+      if (i > 0) {
+        [container.opcoes[i-1], container.opcoes[i]] = [container.opcoes[i], container.opcoes[i-1]];
+        renderizarRefrigerantesEditor(container);
+      }
+    });
+  });
+  refrigerantesList.querySelectorAll('[data-action="down"]').forEach(btn => {
+    btn.addEventListener('click', (e) => {
+      const i = Number(e.currentTarget.dataset.index);
+      if (i < container.opcoes.length - 1) {
+        [container.opcoes[i+1], container.opcoes[i]] = [container.opcoes[i], container.opcoes[i+1]];
+        renderizarRefrigerantesEditor(container);
+      }
+    });
+  });
+}
+
+// Hook bindings when refrigerantes modal opens
+function abrirModalRefrigerantes(container) {
+  refriEditSnapshot = JSON.parse(JSON.stringify(container));
+  refrigerantesModal.classList.add('active');
+  document.body.style.overflow = 'hidden';
+  renderizarRefrigerantesEditor(container);
+}
+
+// Eventos do modal de refrigerantes
+if (closeRefrigerantesModal) closeRefrigerantesModal.addEventListener('click', () => fecharModalRefrigerantes(true));
+if (cancelRefrigerantesBtn) cancelRefrigerantesBtn.addEventListener('click', () => fecharModalRefrigerantes(true));
+if (refrigerantesModal) refrigerantesModal.addEventListener('click', (e) => { if (e.target === refrigerantesModal) fecharModalRefrigerantes(true); });
+if (saveRefrigerantesBtn) saveRefrigerantesBtn.addEventListener('click', () => { salvarProdutos(); fecharModalRefrigerantes(false); });
+
+// Adicionar novo refrigerante pelo formulário do modal
+if (refriAddBtn) refriAddBtn.addEventListener('click', () => {
+    const nome = (refriAddName?.value || '').trim();
+    const preco = parseFloat(refriAddPrice?.value || '0');
+    const imagem = (refriAddImage?.value || '').trim();
+    if (!nome || !imagem || isNaN(preco) || preco <= 0) {
+        alert('Preencha nome, preço (>0) e URL/Imagem válida.');
+        return;
+    }
+    let container = produtos.find(p => p.tipo === 'refrigerante-container');
+    if (!container) {
+        container = { id: Date.now(), nome: 'Refrigerantes', descricao: 'Escolha sua bebida favorita! Servido gelado em taça de vidro com gelo e limão - 350ml', categoria: 'Bebidas', tipo: 'refrigerante-container', opcoes: [], opcaoSelecionada: null };
+        produtos.push(container);
+    }
+    const id = `refri-${Date.now()}`;
+    container.opcoes.push({ id, nome, preco, imagem });
+    if (!container.opcaoSelecionada) container.opcaoSelecionada = id;
+    if (refriAddName) refriAddName.value = '';
+    if (refriAddPrice) refriAddPrice.value = '';
+    if (refriAddImage) refriAddImage.value = '';
+    const addPreview = document.getElementById('refriAddImagePreview');
+    if (addPreview) { addPreview.src = ''; addPreview.style.display = 'none'; }
+    renderizarRefrigerantesEditor(container);
 });
 
-console.log('🔧 Dashboard Admin - Laura\'s Burguer carregado!');
-console.log('📊 Funcionalidades: CRUD Produtos, Visualização Pedidos');
-console.log('🎨 Design baseado no tema principal');
+// Inicialização final
+document.addEventListener('DOMContentLoaded', function() {
+    inicializarDashboard();
+    configurarLogout();
+});

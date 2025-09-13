@@ -152,6 +152,13 @@
                             <input type="url" id="productImage" class="form-input" placeholder="https://...">
                         </div>
                         <div class="form-group">
+                            <label>Enviar Imagem (dispositivo)</label>
+                            <input type="file" id="productImageFile" class="form-input" accept="image/*">
+                            <div class="image-preview">
+                                <img id="productImagePreview" alt="Preview da imagem" />
+                            </div>
+                        </div>
+                        <div class="form-group">
                             <label>Categoria</label>
                             <select id="productCategory" class="form-input">
                                 <option value="Principais">Principais</option>
@@ -176,6 +183,13 @@
                             <label>URL da Imagem</label>
                             <input type="url" id="refriImage" class="form-input" placeholder="https://...">
                         </div>
+                        <div class="form-group">
+                            <label>Enviar Imagem (dispositivo)</label>
+                            <input type="file" id="refriImageFile" class="form-input" accept="image/*">
+                            <div class="image-preview">
+                                <img id="refriImagePreview" alt="Preview da imagem" />
+                            </div>
+                        </div>
                     </div>
 
                     <!-- Campos para Combo -->
@@ -196,12 +210,57 @@
                             <label>URL da Imagem</label>
                             <input type="url" id="comboImage" class="form-input" placeholder="https://...">
                         </div>
+                        <div class="form-group">
+                            <label>Enviar Imagem (dispositivo)</label>
+                            <input type="file" id="comboImageFile" class="form-input" accept="image/*">
+                            <div class="image-preview">
+                                <img id="comboImagePreview" alt="Preview da imagem" />
+                            </div>
+                        </div>
                     </div>
                 </form>
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn-secondary" id="cancelBtn">Cancelar</button>
                 <button type="submit" form="productForm" class="btn-primary" id="saveBtn">Salvar Produto</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Refrigerantes Management Modal -->
+    <div class="modal-overlay" id="refrigerantesModal">
+        <div class="modal">
+            <div class="modal-header">
+                <h3>Gerenciar Refrigerantes</h3>
+                <button class="modal-close" id="closeRefrigerantesModal">
+                    <i data-lucide="x"></i>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div id="refrigerantesList" class="refri-list"></div>
+                <div class="refri-add">
+                    <h4 style="margin-bottom: .75rem; color:#1a202c">Adicionar Refrigerante</h4>
+                    <div class="refri-add-grid">
+                        <input type="text" id="refriAddName" class="form-input" placeholder="Nome (Ex: Coca-Cola)">
+                        <input type="number" id="refriAddPrice" class="form-input" step="0.01" placeholder="Preço (R$)">
+                        <input type="url" id="refriAddImage" class="form-input" placeholder="URL da Imagem https://...">
+                        <input type="file" id="refriAddImageFile" class="form-input" accept="image/*">
+                        <button class="btn-primary" id="refriAddBtn">
+                            <i data-lucide="plus"></i>
+                            Adicionar
+                        </button>
+                    </div>
+                    <div class="image-preview small">
+                        <img id="refriAddImagePreview" alt="Preview da imagem" />
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn-secondary" id="cancelRefrigerantesBtn">Cancelar</button>
+                <button class="btn-primary" id="saveRefrigerantesBtn">
+                    <i data-lucide="save"></i>
+                    Salvar alterações
+                </button>
             </div>
         </div>
     </div>
