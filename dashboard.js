@@ -86,7 +86,6 @@ function carregarDados() {
                     descricao: 'Pão brioche artesanal, blend premium 150g, queijo cheddar derretido, alface crocante, tomate fresco e nosso molho especial da casa',
                     preco: 25.90,
                     imagem: 'https://images.unsplash.com/photo-1568901346375-23c9450c58cd?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1000&q=80',
-                    categoria: 'Principais',
                     tipo: 'normal'
                 },
                 {
@@ -95,7 +94,6 @@ function carregarDados() {
                     descricao: 'Batatas rústicas selecionadas, cortadas na medida certa, temperadas com ervas finas e sal marinho. Crocantes por fora, macias por dentro',
                     preco: 12.90,
                     imagem: 'https://images.unsplash.com/photo-1573080496219-bb080dd4f877?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1000&q=80',
-                    categoria: 'Acompanhamentos',
                     tipo: 'normal'
                 }
             ];
@@ -112,7 +110,6 @@ function carregarDados() {
                     id: Date.now(),
                     nome: 'Refrigerantes',
                     descricao: 'Escolha sua bebida favorita! Servido gelado em taça de vidro com gelo e limão - 350ml',
-                    categoria: 'Bebidas',
                     tipo: 'refrigerante-container',
                     opcoes: refrigerantes,
                     opcaoSelecionada: refrigerantes[0]?.id || null
@@ -135,7 +132,12 @@ function carregarDados() {
 
 function salvarProdutos() {
     try {
-        localStorage.setItem('laurasBurger_produtos_admin', JSON.stringify(produtos));
+        // Remover categoria antes de persistir
+        const produtosSemCategoria = produtos.map(p => {
+            const { categoria, ...rest } = p;
+            return rest;
+        });
+        localStorage.setItem('laurasBurger_produtos_admin', JSON.stringify(produtosSemCategoria));
         
         // Salvar refrigerantes separadamente
         const refrigerantes = [];
@@ -306,7 +308,7 @@ function editarProduto(id) {
         document.getElementById('productDescription').value = produto.descricao;
         document.getElementById('productPrice').value = produto.preco;
         document.getElementById('productImage').value = produto.imagem;
-        document.getElementById('productCategory').value = produto.categoria;
+        // Categoria removida do formulário; manter valor existente em edição
     }
 
     productModal.classList.add('active');
@@ -359,7 +361,6 @@ function handleFormSubmit(e) {
                 descricao: document.getElementById('productDescription').value,
                 preco: parseFloat(document.getElementById('productPrice').value),
                 imagem: document.getElementById('productImage').value,
-                categoria: document.getElementById('productCategory').value,
                 tipo: 'normal'
             };
             break;
@@ -381,7 +382,6 @@ function handleFormSubmit(e) {
                 descricao: document.getElementById('comboDescription').value,
                 preco: parseFloat(document.getElementById('comboPrice').value),
                 imagem: document.getElementById('comboImage').value,
-                categoria: 'Combos',
                 tipo: 'combo'
             };
             break;
@@ -413,11 +413,10 @@ function adicionarRefrigerante(novoRefri) {
     let containerRefri = produtos.find(p => p.tipo === 'refrigerante-container');
     
     if (!containerRefri) {
-        containerRefri = {
+    containerRefri = {
             id: Date.now(),
             nome: 'Refrigerantes',
             descricao: 'Escolha sua bebida favorita! Servido gelado em taça de vidro com gelo e limão - 350ml',
-            categoria: 'Bebidas',
             tipo: 'refrigerante-container',
             opcoes: [],
             opcaoSelecionada: null
@@ -795,7 +794,7 @@ if (refriAddBtn) refriAddBtn.addEventListener('click', () => {
     }
     let container = produtos.find(p => p.tipo === 'refrigerante-container');
     if (!container) {
-        container = { id: Date.now(), nome: 'Refrigerantes', descricao: 'Escolha sua bebida favorita! Servido gelado em taça de vidro com gelo e limão - 350ml', categoria: 'Bebidas', tipo: 'refrigerante-container', opcoes: [], opcaoSelecionada: null };
+        container = { id: Date.now(), nome: 'Refrigerantes', descricao: 'Escolha sua bebida favorita! Servido gelado em taça de vidro com gelo e limão - 350ml', tipo: 'refrigerante-container', opcoes: [], opcaoSelecionada: null };
         produtos.push(container);
     }
     const id = `refri-${Date.now()}`;
